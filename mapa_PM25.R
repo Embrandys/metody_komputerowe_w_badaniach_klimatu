@@ -10,6 +10,10 @@ library(jsonlite)
 #######################################################
 #Klucz API Natalia: "N4UnO4hvvTpBhLvu3PBYXxzVC47Wm2Zc"
 #######################################################
+#######################################################
+#Klucz API Emilia: "qTWnrgxjXF9wriXvotOVPTK0rE25AfTd"
+#######################################################
+
 
 #Pobranie danych w odległości 15km od ratusza w krakowie
 r <- GET("https://airapi.airly.eu/v2/installations/nearest?lat=50.0617022&lng=19.9373569&maxDistanceKM=15&maxResults=-1", 
@@ -18,16 +22,16 @@ r <- GET("https://airapi.airly.eu/v2/installations/nearest?lat=50.0617022&lng=19
 
 #Przejście do listy
 jsonRespText<-content(r,as="text")
-dane<-fromJSON(jsonRespText)
-save(dane,file=("dane_dzien_pora.Rdata"))
+temp<-fromJSON(jsonRespText)
+save(temp,file=("dane_niedziela_900.Rdata"))  #TU ZMIEŃ NAZWĘ PLIKU NA DZIEŃ I GODZINĘ
 
 #Utworzenie ramki danych zawierającą id oraz lokalizację czujników (długość i szerokość 
 #geograficzna, wysokości n.p.m.)
-longitude<- dane$location$longitude
-latitude<- dane$location$latitude
-id<-dane$id
+longitude<- temp$location$longitude
+latitude<- temp$location$latitude
+id<-temp$id
 dane<-data.frame(longitude,latitude,id)
-dane$elevation<-dane$elev
+dane$elevation<-temp$elev
 
 #Utworzenie obiektu przestrzennego ppp
 
@@ -38,7 +42,7 @@ library(sp)
 library(spatstat)
 
 #utworzenie obiektu data_UTM
-data_spat<-data.frame(lon=dane$longitude, lat=dane$latitude, elev=dane$elev, id=dane$id)
+data_spat<-data.frame(lon=dane$longitude, lat=dane$latitude, elev=dane$elevation, id=dane$id)
 #określenie koordynat
 coordinates(data_spat) <- ~lon+lat
 #określenie układu
@@ -48,7 +52,7 @@ data_UTM <- spTransform(data_spat, CRS("+proj=utm +zone=34
 +datum=WGS84")) #konwersja do UTM
 
 #utworzenie obiektu krakowUTM
-install.packages("sf")
+#install.packages("sf")
 library(sf)
 dzielnice<-st_read("dzielnice_Krakowa/dzielnice_Krakowa.shp") 
 dzielniceWGS84<-st_transform(dzielnice,crs = 4326) 
@@ -82,7 +86,7 @@ for (i in seq(1,n_id)) {
 }
 
 #na wszelki
-save(list_data,file="list_data.Rdata") 
+save(list_data,file="list_data_niedziela_900.Rdata") 
 
 #Wybranie potrzebnych danych, czyli aktualnego stężenia pyłu PM2.5 
 
@@ -117,7 +121,7 @@ coordinates(data_spdf)
 #dla PM2.5
 data_spdf$current<-current
 miss <- is.na(data_spdf$current)
-install.packages("automap")
+#install.packages("automap")
 library(automap)
 
 #AUTO KRIGING
@@ -148,53 +152,38 @@ points(data_ppp_id[!miss,],pch="*",col="White")
 plot(Window(data_ppp_id),add=TRUE)
 plot(pm25_gau)
 
-#NUGGET KRIGING
-pm25_nug <- autoKrige(current ~ 1, input_data = data_spdf[!miss,], model="Nug")
-plot(pm25_nug$krige_output[1],main="PM 2.5")
-points(data_ppp_id[!miss,],pch="*",col="White")
-plot(Window(data_ppp_id),add=TRUE)
-plot(pm25_nug)
-
-
 
 #Dla temperatury
 data_spdf$temperature<-temperature
 misss <- is.na(data_spdf$temperature)
 
 #AUTO KRIGING
-temp_auto <- autoKrige(temperature ~ 1, input_data = data_spdf[!miss,])
+temp_auto <- autoKrige(temperature ~ 1, input_data = data_spdf[!misss,])
 plot(temp_auto$krige_output[1],main="Temperatura")
 points(data_ppp_id[!miss,],pch="*",col="White")
 plot(Window(data_ppp_id),add=TRUE)
 plot(temp_auto)
 
 #SPHERICAL KRIGING
-temp_sph <- autoKrige(temperature ~ 1, input_data = data_spdf[!miss,], model="Sph")
+temp_sph <- autoKrige(temperature ~ 1, input_data = data_spdf[!misss,], model="Sph")
 plot(temp_sph$krige_output[1],main="Temperatura")
 points(data_ppp_id[!miss,],pch="*",col="White")
 plot(Window(data_ppp_id),add=TRUE)
 plot(temp_sph)
 
 #EXPONENTIAL KRIGING
-temp_exp <- autoKrige(temperature ~ 1, input_data = data_spdf[!miss,], model="Exp")
+temp_exp <- autoKrige(temperature ~ 1, input_data = data_spdf[!misss,], model="Exp")
 plot(temp_exp$krige_output[1],main="Temperatura")
 points(data_ppp_id[!miss,],pch="*",col="White")
 plot(Window(data_ppp_id),add=TRUE)
 plot(temp_exp)
 
 #GAUSSIAN KRIGING
-temp_gau <- autoKrige(temperature ~ 1, input_data = data_spdf[!miss,], model="Gau")
+temp_gau <- autoKrige(temperature ~ 1, input_data = data_spdf[!misss,], model="Gau")
 plot(temp_gau$krige_output[1],main="Temperatura")
 points(data_ppp_id[!miss,],pch="*",col="White")
 plot(Window(data_ppp_id),add=TRUE)
 plot(temp_gau)
-
-#NUGGET KRIGING
-temp_nug <- autoKrige(temperature ~ 1, input_data = data_spdf[!miss,], model="Nug")
-plot(temp_nug$krige_output[1],main="Temperatura")
-points(data_ppp_id[!miss,],pch="*",col="White")
-plot(Window(data_ppp_id),add=TRUE)
-plot(temp_nug)
 
 
 ######bardzo ładna mapka######
@@ -226,7 +215,7 @@ gridpoints <- SpatialPoints(grid, proj4string = CRS("+proj=utm +zone=34
 plot(gridpoints)
 
 #Przycięcie siatki do konturu
-install.packages("tmaptools")
+#install.packages("tmaptools")
 library(tmaptools)
 #konwersja do formatu w którym działa crop_shape()
 g<-st_as_sf(gridpoints)
@@ -262,43 +251,30 @@ plot(pm25_gau$krige_output[1],main="PM 2.5")
 points(data_ppp_id[!miss,],pch="*",col="White")
 plot(pm25_gau)
 
-#NUGGET KRIGING
-pm25_nug <- autoKrige(current ~ 1, input_data = data_spdf[!miss,],new_data=spgrid, model="Nug")
-plot(pm25_nug$krige_output[1],main="PM 2.5")
-points(data_ppp_id[!miss,],pch="*",col="White")
-plot(pm25_nug)
-
-
 
 #dla temperatury
 
 #AUTO KRIGING
-temp_auto <- autoKrige(temperature ~ 1, input_data = data_spdf[!miss,],new_data=spgrid)
+temp_auto <- autoKrige(temperature ~ 1, input_data = data_spdf[!misss,],new_data=spgrid)
 plot(temp_auto$krige_output[1],main="Temperatura")
 points(data_ppp_id[!miss,],pch="*",col="White")
 plot(temp_auto)
 
 #SPHERICAL KRIGING
-temp_sph <- autoKrige(temperature ~ 1, input_data = data_spdf[!miss,],new_data=spgrid, model="Sph")
+temp_sph <- autoKrige(temperature ~ 1, input_data = data_spdf[!misss,],new_data=spgrid, model="Sph")
 plot(temp_sph$krige_output[1],main="Temperatura")
 points(data_ppp_id[!miss,],pch="*",col="White")
 plot(temp_sph)
 
 #EXPONENTIAL KRIGING
-temp_exp <- autoKrige(temperature ~ 1, input_data = data_spdf[!miss,],new_data=spgrid, model="Exp")
+temp_exp <- autoKrige(temperature ~ 1, input_data = data_spdf[!misss,],new_data=spgrid, model="Exp")
 plot(temp_exp$krige_output[1],main="Temperatura")
 points(data_ppp_id[!miss,],pch="*",col="White")
 plot(temp_exp)
 
 #GAUSSIAN KRIGING
-temp_gau <- autoKrige(temperature ~ 1, input_data = data_spdf[!miss,],new_data=spgrid, model="Gau")
+temp_gau <- autoKrige(temperature ~ 1, input_data = data_spdf[!misss,],new_data=spgrid, model="Gau")
 plot(temp_gau$krige_output[1],main="Temperatura")
 points(data_ppp_id[!miss,],pch="*",col="White")
 plot(temp_gau)
-
-#NUGGET KRIGING
-temp_nug <- autoKrige(temperature ~ 1, input_data = data_spdf[!miss,],new_data=spgrid, model="Nug")
-plot(temp_nug$krige_output[1],main="Temperatura")
-points(data_ppp_id[!miss,],pch="*",col="White")
-plot(temp_nug)
 
