@@ -1,3 +1,15 @@
+
+#######################################################
+#Klucz API Natalia: "lJg9TVrDZHlWXUEuzOkXv6PUfvzE1UMT"
+#######################################################
+#######################################################
+#Klucz API Emilia: "qTWnrgxjXF9wriXvotOVPTK0rE25AfTd"
+#######################################################
+#######################################################
+#Klucz API Zuzia: "AZJdLwwDebSXMDIGXZbfUZ1yBVtQoZsz"
+#######################################################
+#Klucz ostatecznego ratunku: "D8rexBz8zSNh3MGCn3bJLRkeMlsaV6DQ"
+
 #Utworzenie struktury danych, która będzie przechowywała dane o zanieczyszczeniach 
 #pochodzące z czujników airy
 
@@ -7,13 +19,9 @@ library(httr)
 #install.packages("jsonlite")
 library(jsonlite) 
 
-#######################################################
-#Klucz API Natalia: "lJg9TVrDZHlWXUEuzOkXv6PUfvzE1UMT"
-#######################################################
-
 #Pobranie danych w odległości 15km od ratusza w krakowie
 r <- GET("https://airapi.airly.eu/v2/installations/nearest?lat=50.0617022&lng=19.9373569&maxDistanceKM=15&maxResults=-1", 
-         add_headers(apikey = "AZJdLwwDebSXMDIGXZbfUZ1yBVtQoZsz", Accept = "application/json")
+         add_headers(apikey = "D8rexBz8zSNh3MGCn3bJLRkeMlsaV6DQ", Accept = "application/json")
 )
 
 #Przejście do listy
@@ -73,7 +81,7 @@ for (i in seq(1,n_id)) {
   #Stworzenie ciągu znaków określajacy adres, pod kótrym znajdują się pomiary z czujnika
   str<-paste("https://airapi.airly.eu/v2/measurements/installation?installationId=",id[i],sep="")
   #Pobranie danych z adresu
-  r <- GET(url=str,add_headers(apikey = "AZJdLwwDebSXMDIGXZbfUZ1yBVtQoZsz", Accept = "application/json"))
+  r <- GET(url=str,add_headers(apikey = "D8rexBz8zSNh3MGCn3bJLRkeMlsaV6DQ", Accept = "application/json"))
   #Przejście z formatu r na json i z json na tekst
   jsonRespText<-content(r,as="text")
   inst<-fromJSON(jsonRespText)
@@ -146,26 +154,26 @@ plot(pm25_sph)
 
 #Dla temperatury
 data_spdf$temperature<-temperature
-miss <- is.na(data_spdf$temperature)
+misss <- is.na(data_spdf$temperature)
 
 #ste KRIGING
-temp_ste <- autoKrige(temperature ~ 1, input_data = data_spdf[!miss,], model="Ste")
+temp_ste <- autoKrige(temperature ~ 1, input_data = data_spdf[!misss,], model="Ste")
 plot(temp_ste$krige_output[1],main="Temperatura")
-points(data_ppp_id[!miss,],pch="*",col="White")
+points(data_ppp_id[!misss,],pch="*",col="White")
 plot(Window(data_ppp_id),add=TRUE)
 plot(temp_ste)
 
 #mat KRIGING
-temp_mat <- autoKrige(temperature ~ 1, input_data = data_spdf[!miss,], model="Mat")
+temp_mat <- autoKrige(temperature ~ 1, input_data = data_spdf[!misss,], model="Mat")
 plot(temp_mat$krige_output[1],main="Temperatura")
-points(data_ppp_id[!miss,],pch="*",col="White")
+points(data_ppp_id[!misss,],pch="*",col="White")
 plot(Window(data_ppp_id),add=TRUE)
 plot(temp_mat)
 
 #sph KRIGING
-temp_sph <- autoKrige(temperature ~ 1, input_data = data_spdf[!miss,], model="Sph")
+temp_sph <- autoKrige(temperature ~ 1, input_data = data_spdf[!misss,], model="Sph")
 plot(temp_sph$krige_output[1],main="Temperatura")
-points(data_ppp_id[!miss,],pch="*",col="White")
+points(data_ppp_id[!misss,],pch="*",col="White")
 plot(Window(data_ppp_id),add=TRUE)
 plot(temp_sph)
 
@@ -236,23 +244,22 @@ plot(pm25_sph)
 #dla temperatury
 
 #ste KRIGING
-temp_ste <- autoKrige(temperature ~ 1, input_data = data_spdf[!miss,],new_data=spgrid, model="Ste")
+temp_ste <- autoKrige(temperature ~ 1, input_data = data_spdf[!misss,],new_data=spgrid, model="Ste")
 plot(temp_ste$krige_output[1],main="Temperatura")
-points(data_ppp_id[!miss,],pch="*",col="White")
+points(data_ppp_id[!misss,],pch="*",col="White")
 plot(Window(data_ppp_id),add=TRUE)
 plot(temp_ste)
 
 #mat KRIGING
-temp_mat <- autoKrige(temperature ~ 1, input_data = data_spdf[!miss,],new_data=spgrid, model="Mat")
+temp_mat <- autoKrige(temperature ~ 1, input_data = data_spdf[!misss,],new_data=spgrid, model="Mat")
 plot(temp_mat$krige_output[1],main="Temperatura")
-points(data_ppp_id[!miss,],pch="*",col="White")
+points(data_ppp_id[!misss,],pch="*",col="White")
 plot(Window(data_ppp_id),add=TRUE)
 plot(temp_mat)
 
 #sph KRIGING
-temp_sph <- autoKrige(temperature ~ 1, input_data = data_spdf[!miss,],new_data=spgrid, model="Sph")
+temp_sph <- autoKrige(temperature ~ 1, input_data = data_spdf[!misss,],new_data=spgrid, model="Sph")
 plot(temp_sph$krige_output[1],main="Temperatura")
-points(data_ppp_id[!miss,],pch="*",col="White")
+points(data_ppp_id[!misss,],pch="*",col="White")
 plot(Window(data_ppp_id),add=TRUE)
 plot(temp_sph)
-
