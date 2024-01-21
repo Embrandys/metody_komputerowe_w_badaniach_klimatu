@@ -13,7 +13,9 @@ library(jsonlite)
 #######################################################
 #Klucz API Emilia: "qTWnrgxjXF9wriXvotOVPTK0rE25AfTd"
 #######################################################
-
+#######################################################
+#Klucz API Zuzia: "AZJdLwwDebSXMDIGXZbfUZ1yBVtQoZsz"
+#######################################################
 
 #Pobranie danych w odległości 15km od ratusza w krakowie
 r <- GET("https://airapi.airly.eu/v2/installations/nearest?lat=50.0617022&lng=19.9373569&maxDistanceKM=15&maxResults=-1", 
