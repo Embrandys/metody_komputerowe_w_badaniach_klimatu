@@ -190,7 +190,7 @@ plot(Window(data_ppp_id),add=TRUE)
 plot(temp_gau)
 
 #NUGGET KRIGING
-temp_nug- autoKrige(temperature ~ 1, input_data = data_spdf[!miss,], model="Nug")
+temp_nug <- autoKrige(temperature ~ 1, input_data = data_spdf[!miss,], model="Nug")
 plot(temp_nug$krige_output[1],main="Temperatura")
 points(data_ppp_id[!miss,],pch="*",col="White")
 plot(Window(data_ppp_id),add=TRUE)
@@ -297,7 +297,7 @@ points(data_ppp_id[!miss,],pch="*",col="White")
 plot(temp_gau)
 
 #NUGGET KRIGING
-temp_nug- autoKrige(temperature ~ 1, input_data = data_spdf[!miss,],new_data=spgrid, model="Nug")
+temp_nug <- autoKrige(temperature ~ 1, input_data = data_spdf[!miss,],new_data=spgrid, model="Nug")
 plot(temp_nug$krige_output[1],main="Temperatura")
 points(data_ppp_id[!miss,],pch="*",col="White")
 plot(temp_nug)
