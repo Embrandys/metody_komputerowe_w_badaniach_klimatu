@@ -21,7 +21,7 @@ library(jsonlite)
 
 #Pobranie danych w odległości 15km od ratusza w krakowie
 r <- GET("https://airapi.airly.eu/v2/installations/nearest?lat=50.0617022&lng=19.9373569&maxDistanceKM=15&maxResults=-1", 
-         add_headers(apikey = "D8rexBz8zSNh3MGCn3bJLRkeMlsaV6DQ", Accept = "application/json")
+         add_headers(apikey = "qTWnrgxjXF9wriXvotOVPTK0rE25AfTd", Accept = "application/json")
 )
 
 #Przejście do listy
@@ -41,9 +41,9 @@ dane<-data.frame(longitude,latitude,id, elevation)
 #Utworzenie obiektu przestrzennego ppp
 
 #Załadowanie potrzebnych bibliotek
-install.packages("sp")
+#install.packages("sp")
 library(sp)
-install.packages("spatstat")
+#install.packages("spatstat")
 library(spatstat)
 
 #utworzenie obiektu data_UTM
@@ -57,7 +57,7 @@ data_UTM <- spTransform(data_spat, CRS("+proj=utm +zone=34
 +datum=WGS84")) #konwersja do UTM
 
 #utworzenie obiektu krakowUTM
-install.packages("sf")
+#install.packages("sf")
 library(sf)
 dzielnice<-st_read("dzielnice_Krakowa/dzielnice_Krakowa.shp") 
 dzielniceWGS84<-st_transform(dzielnice,crs = 4326) 
@@ -152,9 +152,7 @@ plot(pm25_sph)
 
 
 
-#Dla temperatury
-data_spdf$temperature<-temperature
-misss <- is.na(data_spdf$temperature)
+
 
 #ste KRIGING
 temp_ste <- autoKrige(temperature ~ 1, input_data = data_spdf[!misss,], model="Ste")
@@ -207,7 +205,7 @@ gridpoints <- SpatialPoints(grid, proj4string = CRS("+proj=utm +zone=34
 plot(gridpoints)
 
 #Przycięcie siatki do konturu
-install.packages("tmaptools")
+#install.packages("tmaptools")
 library(tmaptools)
 #konwersja do formatu w którym działa crop_shape()
 g<-st_as_sf(gridpoints)
@@ -242,7 +240,8 @@ plot(pm25_sph)
 
 
 #dla temperatury
-
+data_spdf$temperature<-temperature
+misss <- is.na(data_spdf$temperature)
 #ste KRIGING
 temp_ste <- autoKrige(temperature ~ 1, input_data = data_spdf[!misss,],new_data=spgrid, model="Ste")
 plot(temp_ste$krige_output[1],main="Temperatura")
