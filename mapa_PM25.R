@@ -1,4 +1,3 @@
-
 #######################################################
 #Klucz API Natalia: "lJg9TVrDZHlWXUEuzOkXv6PUfvzE1UMT"
 #######################################################
@@ -81,7 +80,7 @@ for (i in seq(1,n_id)) {
   #Stworzenie ciągu znaków określajacy adres, pod kótrym znajdują się pomiary z czujnika
   str<-paste("https://airapi.airly.eu/v2/measurements/installation?installationId=",id[i],sep="")
   #Pobranie danych z adresu
-  r <- GET(url=str,add_headers(apikey = "D8rexBz8zSNh3MGCn3bJLRkeMlsaV6DQ", Accept = "application/json"))
+  r <- GET(url=str,add_headers(apikey = "qTWnrgxjXF9wriXvotOVPTK0rE25AfTd", Accept = "application/json"))
   #Przejście z formatu r na json i z json na tekst
   jsonRespText<-content(r,as="text")
   inst<-fromJSON(jsonRespText)
@@ -123,11 +122,7 @@ library(maptools)
 data_spdf<-as.SpatialPointsDataFrame.ppp(data_ppp_id)
 coordinates(data_spdf)
 
-#dla PM2.5
-data_spdf$current<-current
-miss <- is.na(data_spdf$current)
-#install.packages("automap")
-library(automap)
+##tego nie
 
 #Standard error KRIGING
 pm25_ste <- autoKrige(current ~ 1, input_data = data_spdf[!miss,], model="Ste")
@@ -216,6 +211,10 @@ plot(spgrid)
 
 #dla PM2.5
 #narysowana mapka
+data_spdf$current<-current
+miss <- is.na(data_spdf$current)
+#install.packages("automap")
+library(automap)
 
 #Standard error KRIGING
 pm25_ste <- autoKrige(current ~ 1, input_data = data_spdf[!miss,],new_data=spgrid, model="Ste")
